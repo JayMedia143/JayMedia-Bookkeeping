@@ -560,38 +560,47 @@
         `;
       }
 
-      container.innerHTML = `
-        <div class="exhibit-header">
-          <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-            <div style="display: flex; align-items: center; gap: 20px;">
-              <div class="exhibit-icon">
-                <img src="${m.thumbnail || m.image}" alt="${m.name} Icon" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-md);">
+      // Check if mobile view to render different layout
+      const isMobile = window.innerWidth <= 992;
+
+      if (isMobile) {
+        container.innerHTML = `
+          <div class="exhibit-header">
+            <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+              <div style="display: flex; align-items: center; gap: 20px;">
+                <div class="exhibit-icon">
+                  <img src="${m.thumbnail || m.image}" alt="${m.name} Icon" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-md);">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <div class="exhibit-date" style="margin-bottom: 2px;">${m.date}</div>
+                  <h3 class="exhibit-title" style="margin: 0; line-height: 1.1;">${m.name}</h3>
+                </div>
               </div>
-              <div style="display: flex; flex-direction: column; gap: 4px;">
-                <div class="exhibit-date" style="margin-bottom: 2px;">${m.date}</div>
-                <h3 class="exhibit-title" style="margin: 0; line-height: 1.1;">${m.name}</h3>
+              <div class="exhibit-place" style="margin-top: 4px;">
+                <i class="ti ti-map-pin"></i> ${m.place}
               </div>
-            </div>
-            <div class="exhibit-place" style="margin-top: 4px;">
-              <i class="ti ti-map-pin"></i> ${m.place}
             </div>
           </div>
-        </div>
 
-        <div class="exhibit-content-grid">
-          
-          <!-- Story column -->
-          <div class="exhibit-story" style="display: flex; flex-direction: column; gap: 20px;">
+          <div class="exhibit-content-grid" style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- Image -->
+            <div>
+              ${visualHTML}
+            </div>
+
+            <!-- Problem -->
             <div class="exhibit-story-section">
               <div class="exhibit-chips-label"><i class="ti ti-alert-circle"></i> Problem — what painful situation existed</div>
               <p>${m.problem}</p>
             </div>
             
+            <!-- Why -->
             <div class="exhibit-story-section">
               <div class="exhibit-chips-label"><i class="ti ti-help-circle"></i> Why — the deeper human reason they needed to fix it</div>
               <p>${m.why}</p>
             </div>
             
+            <!-- Idea -->
             <div class="exhibit-story-section">
               <div class="exhibit-chips-label" style="color: var(--gold-primary);"><i class="ti ti-bulb"></i> Idea — the concept or insight someone had</div>
               <div class="exhibit-box-dark" style="border-left: 3px solid var(--gold-primary); background: rgba(207, 161, 83, 0.05); padding: 16px 20px; border-radius: 0 var(--radius-md) var(--radius-md) 0; line-height: 1.75;">
@@ -599,42 +608,43 @@
               </div>
             </div>
             
+            <!-- Solution -->
             <div class="exhibit-story-section">
               <div class="exhibit-chips-label"><i class="ti ti-puzzle"></i> Solution — the actual thing they built or invented</div>
               <p>${m.solution}</p>
             </div>
+
+            <!-- Tools -->
+            <div class="exhibit-chips">
+              <span class="exhibit-chips-label">Tools — the physical objects used</span>
+              <div class="chips-container" style="margin-top: 8px;">
+                ${chipsHTML}
+              </div>
+            </div>
             
+            <!-- How -->
             <div class="exhibit-story-section">
               <div class="exhibit-chips-label" style="color: var(--teal-light);"><i class="ti ti-hammer"></i> How the tools were made — where the material came from, how it was created, why that specific material was chosen</div>
               <div class="exhibit-box-dark" style="border-left: 3px solid var(--teal-primary); background: rgba(20, 92, 102, 0.05); padding: 16px 20px; border-radius: 0 var(--radius-md) var(--radius-md) 0; line-height: 1.75;">
                 ${m.howmade}
               </div>
             </div>
-            
-            <div class="exhibit-story-section">
-              <div class="exhibit-chips-label"><i class="ti ti-star"></i> Impact — what changed because of this invention</div>
-              <p>${m.impact}</p>
-            </div>
-          </div>
 
-          <!-- Media/Meta column -->
-          <div class="exhibit-meta-column">
-            ${visualHTML}
-
-            <div class="exhibit-chips">
-              <span class="exhibit-chips-label">Tools — the physical objects used</span>
-              <div class="chips-container">
-                ${chipsHTML}
-              </div>
-            </div>
-
+            <!-- Who -->
             <div class="exhibit-box-dark">
               <div class="exhibit-box-title">
                 <i class="ti ti-user"></i> Who — the person or role that did the work
               </div>
               <div class="exhibit-box-text">${m.who}</div>
             </div>
+            
+            <!-- Impact -->
+            <div class="exhibit-story-section">
+              <div class="exhibit-chips-label"><i class="ti ti-star"></i> Impact — what changed because of this invention</div>
+              <p>${m.impact}</p>
+            </div>
 
+            <!-- Limitations -->
             <div class="exhibit-box-dark why-fade-box" style="border-left: 3px solid var(--gold-primary); background: rgba(207, 161, 83, 0.05);">
               <div class="exhibit-box-title" style="color: var(--gold-primary)">
                 <i class="ti ti-alert-triangle"></i> Limitations — what problems remained, leading into the next era
@@ -642,9 +652,94 @@
               <div class="exhibit-box-text">${m.limit}</div>
             </div>
           </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="exhibit-header">
+            <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+              <div style="display: flex; align-items: center; gap: 20px;">
+                <div class="exhibit-icon">
+                  <img src="${m.thumbnail || m.image}" alt="${m.name} Icon" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-md);">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <div class="exhibit-date" style="margin-bottom: 2px;">${m.date}</div>
+                  <h3 class="exhibit-title" style="margin: 0; line-height: 1.1;">${m.name}</h3>
+                </div>
+              </div>
+              <div class="exhibit-place" style="margin-top: 4px;">
+                <i class="ti ti-map-pin"></i> ${m.place}
+              </div>
+            </div>
+          </div>
 
-        </div>
-      `;
+          <div class="exhibit-content-grid">
+            
+            <!-- Story column -->
+            <div class="exhibit-story" style="display: flex; flex-direction: column; gap: 20px;">
+              <div class="exhibit-story-section">
+                <div class="exhibit-chips-label"><i class="ti ti-alert-circle"></i> Problem — what painful situation existed</div>
+                <p>${m.problem}</p>
+              </div>
+              
+              <div class="exhibit-story-section">
+                <div class="exhibit-chips-label"><i class="ti ti-help-circle"></i> Why — the deeper human reason they needed to fix it</div>
+                <p>${m.why}</p>
+              </div>
+              
+              <div class="exhibit-story-section">
+                <div class="exhibit-chips-label" style="color: var(--gold-primary);"><i class="ti ti-bulb"></i> Idea — the concept or insight someone had</div>
+                <div class="exhibit-box-dark" style="border-left: 3px solid var(--gold-primary); background: rgba(207, 161, 83, 0.05); padding: 16px 20px; border-radius: 0 var(--radius-md) var(--radius-md) 0; line-height: 1.75;">
+                  ${m.idea}
+                </div>
+              </div>
+              
+              <div class="exhibit-story-section">
+                <div class="exhibit-chips-label"><i class="ti ti-puzzle"></i> Solution — the actual thing they built or invented</div>
+                <p>${m.solution}</p>
+              </div>
+              
+              <div class="exhibit-story-section">
+                <div class="exhibit-chips-label" style="color: var(--teal-light);"><i class="ti ti-hammer"></i> How the tools were made — where the material came from, how it was created, why that specific material was chosen</div>
+                <div class="exhibit-box-dark" style="border-left: 3px solid var(--teal-primary); background: rgba(20, 92, 102, 0.05); padding: 16px 20px; border-radius: 0 var(--radius-md) var(--radius-md) 0; line-height: 1.75;">
+                  ${m.howmade}
+                </div>
+              </div>
+              
+              <div class="exhibit-story-section">
+                <div class="exhibit-chips-label"><i class="ti ti-star"></i> Impact — what changed because of this invention</div>
+                <p>${m.impact}</p>
+              </div>
+            </div>
+
+            <!-- Media/Meta column -->
+            <div class="exhibit-meta-column">
+              ${visualHTML}
+
+              <div class="exhibit-chips">
+                <span class="exhibit-chips-label">Tools — the physical objects used</span>
+                <div class="chips-container">
+                  ${chipsHTML}
+                </div>
+              </div>
+
+              <div class="exhibit-box-dark">
+                <div class="exhibit-box-title">
+                  <i class="ti ti-user"></i> Who — the person or role that did the work
+                </div>
+                <div class="exhibit-box-text">${m.who}</div>
+              </div>
+
+              <div class="exhibit-box-dark why-fade-box" style="border-left: 3px solid var(--gold-primary); background: rgba(207, 161, 83, 0.05);">
+                <div class="exhibit-box-title" style="color: var(--gold-primary)">
+                  <i class="ti ti-alert-triangle"></i> Limitations — what problems remained, leading into the next era
+                </div>
+                <div class="exhibit-box-text">${m.limit}</div>
+              </div>
+            </div>
+
+          </div>
+        `;
+      }
     }
 
     // Switch exhibit
@@ -719,7 +814,9 @@
         this.activeImageLoaded = false;
         
         this.image = new Image();
-        this.image.crossOrigin = "anonymous";
+        if (baseImgSrc.startsWith('http://') || baseImgSrc.startsWith('https://')) {
+          this.image.crossOrigin = "anonymous";
+        }
         this.image.onload = () => {
           this.baseImageLoaded = true;
         };
@@ -733,7 +830,9 @@
         }
         
         this.activeImage = new Image();
-        this.activeImage.crossOrigin = "anonymous";
+        if (activeImgSrc.startsWith('http://') || activeImgSrc.startsWith('https://')) {
+          this.activeImage.crossOrigin = "anonymous";
+        }
         this.activeImage.onload = () => {
           this.activeImageLoaded = true;
         };
@@ -753,7 +852,23 @@
           this.mode = mode;
           return;
         }
-        if (!this.baseImageLoaded || !this.activeImageLoaded) return;
+        // Force direct check in case onload did not trigger yet
+        if (this.image.complete && this.image.naturalWidth > 0) {
+          this.baseImageLoaded = true;
+        }
+        if (this.activeImage.complete && this.activeImage.naturalWidth > 0) {
+          this.activeImageLoaded = true;
+        }
+        
+        if (!this.baseImageLoaded || !this.activeImageLoaded) {
+          console.warn("Disintegration trigger aborted: Images not loaded yet.", {
+            baseComplete: this.image.complete,
+            baseWidth: this.image.naturalWidth,
+            activeComplete: this.activeImage.complete,
+            activeWidth: this.activeImage.naturalWidth
+          });
+          return;
+        }
         
         this.animating = true;
         this.mode = mode;
@@ -1111,7 +1226,9 @@
           this.baseImgSrc = newBaseSrc;
           this.baseImageLoaded = false;
           this.image = new Image();
-          this.image.crossOrigin = "anonymous";
+          if (newBaseSrc.startsWith('http://') || newBaseSrc.startsWith('https://')) {
+            this.image.crossOrigin = "anonymous";
+          }
           this.image.onload = () => {
             this.baseImageLoaded = true;
           };
@@ -1128,7 +1245,9 @@
           this.activeImgSrc = newActiveSrc;
           this.activeImageLoaded = false;
           this.activeImage = new Image();
-          this.activeImage.crossOrigin = "anonymous";
+          if (newActiveSrc.startsWith('http://') || newActiveSrc.startsWith('https://')) {
+            this.activeImage.crossOrigin = "anonymous";
+          }
           this.activeImage.onload = () => {
             this.activeImageLoaded = true;
           };
@@ -1173,6 +1292,16 @@
     window.addEventListener('DOMContentLoaded', () => {
       initData();
       renderAll();
+
+      // Window resize listener to handle mobile/desktop exhibit rerendering
+      window.lastIsMobile = window.innerWidth <= 992;
+      window.addEventListener('resize', () => {
+        const currentIsMobile = window.innerWidth <= 992;
+        if (window.lastIsMobile !== currentIsMobile) {
+          window.lastIsMobile = currentIsMobile;
+          renderActiveExhibit();
+        }
+      });
 
       // Close lightbox on click outside the image or close button
       const lightbox = document.getElementById('image-lightbox');

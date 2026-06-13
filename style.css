@@ -1587,10 +1587,7 @@ footer {
   }
   .exhibit-content-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
-  }
-  .exhibit-meta-column {
-    order: -1; /* Render image and meta on top of the text story on mobile */
+    gap: 20px;
   }
   .about-grid {
     grid-template-columns: 1fr;
