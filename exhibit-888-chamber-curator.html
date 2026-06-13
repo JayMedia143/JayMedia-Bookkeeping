@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curator Control Room | Secure Access</title>
+  
+  <!-- Tabler Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  
+  <style>
+    body {
+      background: var(--bg-darker);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100dvh;
+      margin: 0;
+      padding: 20px;
+      font-family: var(--font-sans);
+      color: var(--text-main);
+    }
+    
+    .login-wrapper {
+      width: 100%;
+      max-width: 440px;
+      margin: auto;
+    }
+    
+    .login-card {
+      background: var(--bg-card);
+      border: var(--border-gold);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      box-shadow: var(--shadow-glow);
+      backdrop-filter: blur(12px);
+      text-align: center;
+    }
+    
+    .login-header {
+      margin-bottom: 30px;
+    }
+    
+    .login-header i {
+      font-size: 3.2rem;
+      color: var(--gold-primary);
+      margin-bottom: 12px;
+      display: inline-block;
+      filter: drop-shadow(0 0 10px var(--gold-glow));
+    }
+    
+    .login-header h2 {
+      font-family: var(--font-serif);
+      font-size: 1.8rem;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+    
+    .login-header p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+    
+    .login-error {
+      background: rgba(220, 53, 69, 0.15);
+      border: 1px solid rgba(220, 53, 69, 0.4);
+      color: #ea868f;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .login-lockout {
+      background: rgba(255, 193, 7, 0.15);
+      border: 1px solid rgba(255, 193, 7, 0.4);
+      color: #ffda6a;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    /* Admin Workspace Display */
+    .admin-workspace {
+      display: none;
+      width: 100%;
+      max-width: 850px;
+      background: var(--bg-dark);
+      border: var(--border-gold);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.7), var(--shadow-glow);
+      flex-direction: column;
+      overflow: hidden;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    .admin-workspace.active {
+      display: flex;
+    }
+    
+    .workspace-hdr {
+      padding: 24px 30px;
+      border-bottom: var(--border-gold);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(11, 44, 48, 0.4);
+    }
+    
+    .workspace-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .workspace-title-wrap i {
+      color: var(--gold-primary);
+      font-size: 1.6rem;
+    }
+    
+    .workspace-title {
+      font-size: 1.35rem;
+      font-family: var(--font-serif);
+      font-weight: 700;
+    }
+
+    .workspace-tabs {
+      display: flex;
+      background: rgba(4, 19, 22, 0.4);
+      border-bottom: 1px solid rgba(20, 92, 102, 0.3);
+      padding: 0 20px;
+      overflow-x: auto;
+    }
+    
+    .workspace-tab {
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--text-muted);
+      padding: 16px 20px;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition);
+    }
+    
+    .workspace-tab:hover {
+      color: #fff;
+    }
+    
+    .workspace-tab.active {
+      color: var(--gold-primary);
+      border-bottom-color: var(--gold-primary);
+    }
+    
+    .workspace-body {
+      flex-grow: 1;
+      max-height: 60dvh;
+      overflow-y: auto;
+      padding: 30px;
+    }
+
+    .workspace-section-content {
+      display: none;
+    }
+
+    .workspace-section-content.active {
+      display: block;
+    }
+    
+    .workspace-footer {
+      padding: 20px 30px;
+      border-top: 1px solid rgba(20, 92, 102, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(4, 19, 22, 0.4);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    
+    .admin-service-item {
+      background: rgba(11, 44, 48, 0.3);
+      border: var(--border-teal);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .admin-service-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      border-bottom: 1px solid rgba(20, 92, 102, 0.2);
+      padding-bottom: 8px;
+    }
+    
+    .btn-logout {
+      background: rgba(220, 53, 69, 0.1);
+      border: 1px solid rgba(220, 53, 69, 0.5);
+      color: #ea868f;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-weight: 600;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-logout:hover {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    .admin-info-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .admin-info-badge i {
+      color: var(--gold-primary);
+    }
+
+    .admin-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .admin-checkbox-row {
+      display: flex;
+      gap: 20px;
+      margin-top: 10px;
+    }
+
+    .security-warning-box {
+      background: rgba(207, 161, 83, 0.05);
+      border-left: 3px solid var(--gold-primary);
+      padding: 16px;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .security-warning-box i {
+      color: var(--gold-primary);
+      margin-right: 6px;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: -300px;
+      background: var(--bg-dark);
+      border: 1px solid var(--gold-primary);
+      border-left: 5px solid var(--gold-primary);
+      color: #fff;
+      padding: 16px 24px;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-glow);
+      z-index: 10000;
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .toast.show {
+      right: 24px;
+    }
+    
+    .toast i {
+      color: var(--gold-primary);
+      font-size: 1.25rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .workspace-footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .admin-actions {
+        flex-direction: column;
+      }
+      .admin-actions button {
+        width: 100%;
+        justify-content: center;
+      }
+      .workspace-body {
+        max-height: 55dvh;
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 12px;
+      }
+      .login-card {
+        padding: 30px 20px;
+      }
+      .workspace-hdr {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .workspace-hdr .btn-logout {
+        align-self: stretch;
+        justify-content: center;
+      }
+      .workspace-tabs {
+        padding: 0 10px;
+      }
+      .workspace-tab {
+        padding: 12px 14px;
+        font-size: 0.85rem;
+      }
+      .workspace-body {
+        padding: 16px;
+      }
+      .workspace-footer {
+        padding: 16px;
+      }
+    }
+
+    /* Premium File Uploader styling */
+    input[type="file"].form-control {
+      background: rgba(4, 19, 22, 0.4) !important;
+      border: 1px solid rgba(20, 92, 102, 0.4) !important;
+      color: var(--text-muted) !important;
+      padding: 6px 12px 6px 6px !important;
+      height: auto !important;
+      display: flex !important;
+      align-items: center !important;
+      cursor: pointer !important;
+      border-radius: var(--radius-sm) !important;
+      transition: var(--transition) !important;
+    }
+    
+    input[type="file"].form-control:hover {
+      border-color: var(--teal-primary) !important;
+      background: rgba(4, 19, 22, 0.6) !important;
+    }
+
+    input[type="file"].form-control::file-selector-button {
+      background: rgba(207, 161, 83, 0.1) !important;
+      border: 1px solid rgba(207, 161, 83, 0.4) !important;
+      color: var(--gold-primary) !important;
+      padding: 6px 14px !important;
+      border-radius: 4px !important;
+      cursor: pointer !important;
+      font-family: var(--font-sans) !important;
+      font-weight: 600 !important;
+      margin-right: 12px !important;
+      transition: all 0.2s ease-in-out !important;
+    }
+
+    input[type="file"].form-control::file-selector-button:hover {
+      background: var(--gold-primary) !important;
+      color: var(--bg-darker) !important;
+      box-shadow: 0 0 10px rgba(207, 161, 83, 0.3) !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. LOGIN SCREEN -->
+  <div class="login-wrapper" id="login-wrapper">
+    <div class="login-card">
+      <div class="login-header">
+        <i class="ti ti-lock-square"></i>
+        <h2>Curator Control</h2>
+        <p>Enter passkey to open the bookkeeping archives</p>
+      </div>
+      
+      <!-- Display Messages -->
+      <div class="login-error" id="login-error-msg">
+        <i class="ti ti-alert-triangle"></i>
+        <span id="err-text">Incorrect password.</span>
+      </div>
+
+      <div class="login-lockout" id="login-lockout-msg">
+        <i class="ti ti-hourglass-low"></i>
+        <span id="lockout-text">Locked out. Try again in 15:00.</span>
+      </div>
+
+      <!-- Login Form -->
+      <form id="admin-login-form" onsubmit="handleLogin(event)">
+        <div class="form-group" style="text-align: left;">
+          <label class="form-label" for="login-passkey">Passkey</label>
+          <input type="password" id="login-passkey" class="form-control" placeholder="••••••••••••" required>
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;" id="login-submit-btn">
+          <i class="ti ti-shield-lock"></i> Authenticate
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. ADMIN WORKSPACE -->
+  <div class="admin-workspace" id="admin-workspace">
+    
+    <!-- Workspace Header -->
+    <div class="workspace-hdr">
+      <div class="workspace-title-wrap">
+        <i class="ti ti-settings"></i>
+        <span class="workspace-title">Curator Control Room</span>
+      </div>
+      <button class="btn-logout" onclick="handleLogout()">
+        <i class="ti ti-logout"></i> Exit Control Room
+      </button>
+    </div>
+
+    <!-- Workspace Tabs -->
+    <div class="workspace-tabs">
+      <button class="workspace-tab active" data-target="admin-personal">Curator Profile</button>
+      <button class="workspace-tab" data-target="admin-services">Services Offered</button>
+      <button class="workspace-tab" data-target="admin-contacts">Contact & Socials</button>
+      <button class="workspace-tab" data-target="admin-security">Security & Password</button>
+    </div>
+
+    <!-- Workspace Body (Forms) -->
+    <div class="workspace-body">
+      
+      <!-- Tab 1: Profile Information -->
+      <div class="workspace-section-content active" id="admin-personal">
+        <h3 style="margin-bottom: 20px; font-size: 1.15rem; color: var(--gold-primary);">Personal Details</h3>
+        
+        <div class="admin-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="edit-name">Profile/Business Name</label>
+            <input type="text" id="edit-name" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-title">Professional Title</label>
+            <input type="text" id="edit-title" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="edit-tagline">Tagline</label>
+          <input type="text" id="edit-tagline" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="edit-bio">Curator Bio / Introduction</label>
+          <textarea id="edit-bio" class="form-control" style="min-height: 100px;"></textarea>
+        </div>
+
+        <!-- Uploader Grid Row 1: Logo & Resume -->
+        <div class="admin-grid-2">
+          <div class="form-group">
+            <label class="form-label">Branding Logo Upload</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="file" id="upload-logo-img" class="form-control" accept="image/*" onchange="handleFileUploader(event, 'logoImg')">
+              <button type="button" class="btn-logout" style="padding: 12px; border-color: var(--gold-primary); color: var(--gold-primary);" onclick="resetField('logoImg', '5. Jay Media Logo.png')" title="Reset to Default File">
+                <i class="ti ti-rotate-clockwise"></i>
+              </button>
+            </div>
+            <small class="admin-file-helper" id="status-logo-img">Loading status...</small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Resume / Profile Document Upload</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="file" id="upload-resume" class="form-control" accept=".pdf,.docx,.doc" onchange="handleFileUploader(event, 'resumeLink')">
+              <button type="button" class="btn-logout" style="padding: 12px; border-color: var(--gold-primary); color: var(--gold-primary);" onclick="resetField('resumeLink', 'resume.pdf')" title="Reset to Default File">
+                <i class="ti ti-rotate-clockwise"></i>
+              </button>
+            </div>
+            <small class="admin-file-helper" id="status-resume-link">Loading status...</small>
+          </div>
+        </div>
+
+        <!-- Uploader Grid Row 2: Hero Silhouette & Hero Portrait -->
+        <div class="admin-grid-2">
+          <div class="form-group">
+            <label class="form-label">Hero Profile Silhouette (Default)</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="file" id="upload-hero-base" class="form-control" accept="image/*" onchange="handleFileUploader(event, 'heroBaseImg')">
+              <button type="button" class="btn-logout" style="padding: 12px; border-color: var(--gold-primary); color: var(--gold-primary);" onclick="resetField('heroBaseImg', '1. profile-teal.png')" title="Reset to Default File">
+                <i class="ti ti-rotate-clockwise"></i>
+              </button>
+            </div>
+            <small class="admin-file-helper" id="status-hero-base">Loading status...</small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hero Portrait Image (Reveal)</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="file" id="upload-hero-active" class="form-control" accept="image/*" onchange="handleFileUploader(event, 'heroActiveImg')">
+              <button type="button" class="btn-logout" style="padding: 12px; border-color: var(--gold-primary); color: var(--gold-primary);" onclick="resetField('heroActiveImg', '2. Profile.jpg')" title="Reset to Default File">
+                <i class="ti ti-rotate-clockwise"></i>
+              </button>
+            </div>
+            <small class="admin-file-helper" id="status-hero-active">Loading status...</small>
+          </div>
+        </div>
+
+        <!-- Uploader Grid Row 3: About Silhouette & About Cutout -->
+        <div class="admin-grid-2">
+          <div class="form-group">
+            <label class="form-label">About Profile Silhouette (Default)</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="file" id="upload-about-base" class="form-control" accept="image/*" onchange="handleFileUploader(event, 'aboutBaseImg')">
+              <button type="button" class="btn-logout" style="padding: 12px; border-color: var(--gold-primary); color: var(--gold-primary);" onclick="resetField('aboutBaseImg', '3. nobackground-teal.png')" title="Reset to Default File">
+                <i class="ti ti-rotate-clockwise"></i>
+              </button>
+            </div>
+            <small class="admin-file-helper" id="status-about-base">Loading status...</small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">About Cutout Image (Reveal)</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="file" id="upload-about-active" class="form-control" accept="image/*" onchange="handleFileUploader(event, 'aboutActiveImg')">
+              <button type="button" class="btn-logout" style="padding: 12px; border-color: var(--gold-primary); color: var(--gold-primary);" onclick="resetField('aboutActiveImg', '4. nobackground.png')" title="Reset to Default File">
+                <i class="ti ti-rotate-clockwise"></i>
+              </button>
+            </div>
+            <small class="admin-file-helper" id="status-about-active">Loading status...</small>
+          </div>
+        </div>
+
+        <!-- Badge options -->
+        <div class="form-group" style="margin-top: 15px;">
+          <label class="form-label">Accreditations & Badges</label>
+          <div class="admin-checkbox-row">
+            <div class="checkbox-group" style="display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" id="edit-qb" style="cursor: pointer; width: 18px; height: 18px;">
+              <label for="edit-qb" style="cursor: pointer; user-select: none;">QuickBooks Certified Badge</label>
+            </div>
+            <div class="checkbox-group" style="display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" id="edit-xero" style="cursor: pointer; width: 18px; height: 18px;">
+              <label for="edit-xero" style="cursor: pointer; user-select: none;">Xero Certified Badge</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Services offered -->
+      <div class="workspace-section-content" id="admin-services">
+        <h3 style="margin-bottom: 20px; font-size: 1.15rem; color: var(--gold-primary);">Services Offered</h3>
+        
+        <div id="admin-services-list">
+          <!-- Dynamically populated service fields -->
+        </div>
+      </div>
+
+      <!-- Tab 3: Contacts & Socials -->
+      <div class="workspace-section-content" id="admin-contacts">
+        <h3 style="margin-bottom: 20px; font-size: 1.15rem; color: var(--gold-primary);">Contact & Social Information</h3>
+        
+        <div class="admin-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="edit-email">Email Address</label>
+            <input type="email" id="edit-email" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-phone">Phone Number</label>
+            <input type="text" id="edit-phone" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="edit-location">Location</label>
+          <input type="text" id="edit-location" class="form-control">
+        </div>
+
+        <div class="admin-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="edit-fb">Facebook URL</label>
+            <input type="text" id="edit-fb" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-li">LinkedIn URL</label>
+            <input type="text" id="edit-li" class="form-control">
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Security & Password -->
+      <div class="workspace-section-content" id="admin-security">
+        <h3 style="margin-bottom: 20px; font-size: 1.15rem; color: var(--gold-primary);">Access Settings</h3>
+        
+        <div class="security-warning-box">
+          <i class="ti ti-shield-alert"></i>
+          <strong>Passkey Security Note:</strong> Passwords are encrypted client-side using one-way SHA-256 hashing. Changing your password updates it locally in this browser. To save it permanently, download the configuration file via **"Export Config"** and overwrite `data.js`.
+        </div>
+
+        <form id="change-pass-form" onsubmit="handleChangePassword(event)">
+          <div class="form-group">
+            <label class="form-label" for="current-pass">Current Password</label>
+            <input type="password" id="current-pass" class="form-control" required placeholder="••••••••">
+          </div>
+          
+          <div class="admin-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="new-pass">New Password</label>
+              <input type="password" id="new-pass" class="form-control" required placeholder="••••••••">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="confirm-new-pass">Confirm New Password</label>
+              <input type="password" id="confirm-new-pass" class="form-control" required placeholder="••••••••">
+            </div>
+          </div>
+          
+          <button type="submit" class="btn-primary" style="margin-top: 10px;">
+            <i class="ti ti-key"></i> Update Password
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Workspace Footer -->
+    <div class="workspace-footer">
+      <div class="admin-info-badge">
+        <i class="ti ti-info-circle"></i>
+        <span>Changes auto-save in browser. Click Export to make permanent.</span>
+      </div>
+      <div class="admin-actions">
+        <button class="btn-admin-export" id="admin-export-btn" onclick="exportConfig()">
+          <i class="ti ti-download"></i> Export Config
+        </button>
+        <button class="btn-admin-save" id="admin-save-btn" onclick="saveAdminChanges()">
+          <i class="ti ti-device-floppy"></i> Save Changes
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast-notif">
+    <i class="ti ti-circle-check"></i>
+    <span id="toast-message">Changes saved successfully!</span>
+  </div>
+
+  <!-- Javascript Logic -->
+  <script src="data.js"></script>
+  <script>
+    // Security & Auth State
+    // Default Password Hash of "jaymedia888": cc85c124327e3d39f7d605f8a5b072c807f2ae90e9789e9b21b3ce5dc75bef62
+    const DEFAULT_PASS_HASH = "cc85c124327e3d39f7d605f8a5b072c807f2ae90e9789e9b21b3ce5dc75bef62";
+    
+    let portfolioData = null;
+    let failedAttempts = parseInt(localStorage.getItem('curatorFailedAttempts') || '0');
+    let lockoutTimer = null;
+    let lastActivityTime = Date.now();
+
+    // Helper: SHA-256 Hashing using Web Crypto API
+    async function sha256(message) {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return hashHex;
+    }
+
+    // 1. Initial Access Check
+    window.addEventListener('DOMContentLoaded', () => {
+      initData();
+      checkLockout();
+      
+      // If already logged in this session, skip login
+      if (sessionStorage.getItem('curatorLoggedIn') === 'true') {
+        showWorkspace();
+      } else {
+        showLogin();
+      }
+
+      // Tab selector bindings inside workspace
+      const tabs = document.querySelectorAll('.workspace-tab');
+      const tabContents = document.querySelectorAll('.workspace-section-content');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tabContents.forEach(c => c.classList.remove('active'));
+          
+          tab.classList.add('active');
+          document.getElementById(tab.dataset.target).classList.add('active');
+        });
+      });
+
+      // User activity monitors for auto logout
+      const activityEvents = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+      activityEvents.forEach(e => {
+        document.addEventListener(e, () => {
+          lastActivityTime = Date.now();
+        });
+      });
+
+      // Idle checker (runs every 10 seconds)
+      setInterval(checkSessionTimeout, 10000);
+    });
+
+    // 2. Load Portfolio data from LocalStorage
+    function initData() {
+      const savedData = localStorage.getItem('portfolioData');
+      if (savedData) {
+        try {
+          portfolioData = JSON.parse(savedData);
+          // Migrate old museum format to v3 if missing the new fields
+          if (!portfolioData.museum || !portfolioData.museum[0] || !portfolioData.museum[0].problem) {
+            console.log("Upgrading local storage museum data to v3 in curator panel...");
+            portfolioData.museum = DEFAULT_PORTFOLIO_DATA.museum;
+            localStorage.setItem('portfolioData', JSON.stringify(portfolioData));
+          }
+        } catch (e) {
+          console.error("Failed to parse saved data, loading defaults.", e);
+          portfolioData = { ...DEFAULT_PORTFOLIO_DATA };
+        }
+      } else {
+        portfolioData = { ...DEFAULT_PORTFOLIO_DATA };
+      }
+    }
+
+    // 3. Authenticate Login
+    async function handleLogin(e) {
+      e.preventDefault();
+      
+      if (checkLockout()) return;
+
+      const inputPass = document.getElementById('login-passkey').value;
+      const inputHash = await sha256(inputPass);
+      
+      // Get current valid password hash (either custom or default fallback)
+      const currentValidHash = localStorage.getItem('curatorPasswordHash') || 
+                               (typeof DEFAULT_PORTFOLIO_DATA !== 'undefined' && DEFAULT_PORTFOLIO_DATA.security?.curatorPasswordHash) ||
+                               DEFAULT_PASS_HASH;
+
+      if (inputHash === currentValidHash) {
+        // Successful login
+        failedAttempts = 0;
+        localStorage.setItem('curatorFailedAttempts', '0');
+        sessionStorage.setItem('curatorLoggedIn', 'true');
+        lastActivityTime = Date.now();
+        
+        document.getElementById('login-error-msg').style.display = 'none';
+        document.getElementById('login-passkey').value = '';
+        
+        showWorkspace();
+        showToast("Authenticated successfully!");
+      } else {
+        // Failed attempt
+        failedAttempts++;
+        localStorage.setItem('curatorFailedAttempts', failedAttempts.toString());
+        
+        document.getElementById('login-error-msg').style.display = 'flex';
+        document.getElementById('login-passkey').value = '';
+        
+        if (failedAttempts >= 5) {
+          // Trigger 15-minute lockout
+          const lockoutTime = Date.now() + 15 * 60 * 1000;
+          localStorage.setItem('curatorLockoutUntil', lockoutTime.toString());
+          checkLockout();
+        } else if (failedAttempts >= 3) {
+          // Trigger 30-second lockout
+          const lockoutTime = Date.now() + 30 * 1000;
+          localStorage.setItem('curatorLockoutUntil', lockoutTime.toString());
+          checkLockout();
+        }
+      }
+    }
+
+    // 4. Lockout handling
+    function checkLockout() {
+      const lockoutUntil = parseInt(localStorage.getItem('curatorLockoutUntil') || '0');
+      const now = Date.now();
+      
+      if (lockoutUntil > now) {
+        // Locked out
+        document.getElementById('login-passkey').disabled = true;
+        document.getElementById('login-submit-btn').disabled = true;
+        document.getElementById('login-error-msg').style.display = 'none';
+        
+        const lockoutPanel = document.getElementById('login-lockout-msg');
+        lockoutPanel.style.display = 'flex';
+        
+        // Update timer display
+        if (lockoutTimer) clearInterval(lockoutTimer);
+        
+        function updateTimer() {
+          const remaining = Math.max(0, Math.ceil((lockoutUntil - Date.now()) / 1000));
+          if (remaining <= 0) {
+            // Lockout expired
+            clearInterval(lockoutTimer);
+            document.getElementById('login-passkey').disabled = false;
+            document.getElementById('login-submit-btn').disabled = false;
+            lockoutPanel.style.display = 'none';
+          } else {
+            const mins = Math.floor(remaining / 60);
+            const secs = remaining % 60;
+            document.getElementById('lockout-text').innerText = `Too many failed attempts. Lockout active. Try again in ${mins}:${secs.toString().padStart(2, '0')}.`;
+          }
+        }
+        
+        updateTimer();
+        lockoutTimer = setInterval(updateTimer, 1000);
+        return true;
+      } else {
+        document.getElementById('login-passkey').disabled = false;
+        document.getElementById('login-submit-btn').disabled = false;
+        document.getElementById('login-lockout-msg').style.display = 'none';
+        return false;
+      }
+    }
+
+    // 5. Session Timeout Checker
+    function checkSessionTimeout() {
+      if (sessionStorage.getItem('curatorLoggedIn') === 'true') {
+        const diff = Date.now() - lastActivityTime;
+        const timeoutMs = 15 * 60 * 1000; // 15 minutes
+        
+        if (diff > timeoutMs) {
+          handleLogout();
+          alert("Session expired due to inactivity. Please log in again.");
+        }
+      }
+    }
+
+    // 6. View switches
+    function showWorkspace() {
+      document.getElementById('login-wrapper').style.display = 'none';
+      document.getElementById('admin-workspace').classList.add('active');
+      populateWorkspace();
+    }
+
+    function showLogin() {
+      document.getElementById('login-wrapper').style.display = 'block';
+      document.getElementById('admin-workspace').classList.remove('active');
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem('curatorLoggedIn');
+      showLogin();
+    }
+
+    // 7. Populating form values
+    function populateWorkspace() {
+      const p = portfolioData.personal;
+      
+      // Curator Profile
+      document.getElementById('edit-name').value = p.name || '';
+      document.getElementById('edit-title').value = p.title || '';
+      document.getElementById('edit-tagline').value = p.tagline || '';
+      document.getElementById('edit-bio').value = p.bio || '';
+      document.getElementById('edit-qb').checked = p.qbCertified || false;
+      document.getElementById('edit-xero').checked = p.xeroCertified || false;
+
+      // Contact & Socials
+      document.getElementById('edit-email').value = p.email || '';
+      document.getElementById('edit-phone').value = p.phone || '';
+      document.getElementById('edit-location').value = p.location || '';
+      document.getElementById('edit-fb').value = p.facebook || '';
+      document.getElementById('edit-li').value = p.linkedin || '';
+
+      // Update uploaders status displays
+      updateAllUploaderStatuses();
+
+      // Services List rendering
+      const servicesContainer = document.getElementById('admin-services-list');
+      servicesContainer.innerHTML = '';
+      portfolioData.services.forEach((s, idx) => {
+        servicesContainer.innerHTML += `
+          <div class="admin-service-item" data-index="${idx}">
+            <div class="admin-service-header">
+              <span style="font-weight: 600; color: var(--gold-primary);">Service #${idx + 1}</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Service Title</label>
+              <input type="text" class="form-control edit-service-title" value="${s.title}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Service Description</label>
+              <textarea class="form-control edit-service-desc" style="min-height: 60px;">${s.desc}</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tabler Icon Class (e.g. ti-book, ti-refresh)</label>
+              <input type="text" class="form-control edit-service-icon" value="${s.icon || 'ti-book'}">
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // 8. Saving workspace changes to LocalStorage
+    function saveAdminChanges() {
+      // Profile details
+      portfolioData.personal.name = document.getElementById('edit-name').value;
+      portfolioData.personal.title = document.getElementById('edit-title').value;
+      portfolioData.personal.tagline = document.getElementById('edit-tagline').value;
+      portfolioData.personal.bio = document.getElementById('edit-bio').value;
+      portfolioData.personal.qbCertified = document.getElementById('edit-qb').checked;
+      portfolioData.personal.xeroCertified = document.getElementById('edit-xero').checked;
+
+      // Contact details
+      portfolioData.personal.email = document.getElementById('edit-email').value;
+      portfolioData.personal.phone = document.getElementById('edit-phone').value;
+      portfolioData.personal.location = document.getElementById('edit-location').value;
+      portfolioData.personal.facebook = document.getElementById('edit-fb').value;
+      portfolioData.personal.linkedin = document.getElementById('edit-li').value;
+
+      // Services details
+      const serviceCards = document.querySelectorAll('.admin-service-item');
+      portfolioData.services = [];
+      serviceCards.forEach(card => {
+        portfolioData.services.push({
+          title: card.querySelector('.edit-service-title').value,
+          desc: card.querySelector('.edit-service-desc').value,
+          icon: card.querySelector('.edit-service-icon').value
+        });
+      });
+
+      // Save to storage
+      localStorage.setItem('portfolioData', JSON.stringify(portfolioData));
+      showToast("Changes saved successfully to browser storage!");
+    }
+
+    // 8.1 File Uploader & FileReader encoding
+    function handleFileUploader(e, targetKey) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Check size (warn if > 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        alert(`Warning: "${file.name}" is large (${(file.size / 1024 / 1024).toFixed(2)} MB). Large files may exceed browser storage quotas. Consider compressing/optimizing your images.`);
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        portfolioData.personal[targetKey] = evt.target.result;
+        updateAllUploaderStatuses();
+        saveAdminChanges();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function updateAllUploaderStatuses() {
+      const p = portfolioData.personal;
+      updateSingleStatus('logoImg', p.logoImg, '5. Jay Media Logo.png', 'status-logo-img');
+      updateSingleStatus('resumeLink', p.resumeLink, 'resume.pdf', 'status-resume-link');
+      updateSingleStatus('heroBaseImg', p.heroBaseImg, '1. profile-teal.png', 'status-hero-base');
+      updateSingleStatus('heroActiveImg', p.heroActiveImg, '2. Profile.jpg', 'status-hero-active');
+      updateSingleStatus('aboutBaseImg', p.aboutBaseImg, '3. nobackground-teal.png', 'status-about-base');
+      updateSingleStatus('aboutActiveImg', p.aboutActiveImg, '4. nobackground.png', 'status-about-active');
+    }
+
+    function updateSingleStatus(key, currentVal, defaultVal, elementId) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      
+      if (!currentVal || currentVal === defaultVal) {
+        el.innerText = `Using default file: ${defaultVal}`;
+        el.style.color = 'var(--text-muted)';
+      } else if (currentVal.startsWith('data:')) {
+        const kbSize = Math.round((currentVal.length * 3) / 4 / 1024);
+        el.innerText = `Custom Uploaded File (~${kbSize} KB)`;
+        el.style.color = 'var(--gold-primary)';
+      } else {
+        el.innerText = `Linked workspace path: ${currentVal}`;
+        el.style.color = 'var(--teal-light)';
+      }
+    }
+
+    function resetField(key, defaultVal) {
+      if (confirm(`Reset this field back to default workspace file (${defaultVal})?`)) {
+        portfolioData.personal[key] = defaultVal;
+        
+        // Clear file input element
+        const inputMap = {
+          logoImg: 'upload-logo-img',
+          resumeLink: 'upload-resume',
+          heroBaseImg: 'upload-hero-base',
+          heroActiveImg: 'upload-hero-active',
+          aboutBaseImg: 'upload-about-base',
+          aboutActiveImg: 'upload-about-active'
+        };
+        
+        const fileInput = document.getElementById(inputMap[key]);
+        if (fileInput) fileInput.value = '';
+        
+        updateAllUploaderStatuses();
+        saveAdminChanges();
+      }
+    }
+
+    // 9. Export Config to JSON file
+    function exportConfig() {
+      // Create copy of config to preserve state
+      const exportData = JSON.parse(JSON.stringify(portfolioData));
+      
+      // Inject password hash if there is a custom password set
+      const customPassHash = localStorage.getItem('curatorPasswordHash');
+      if (customPassHash) {
+        exportData.security = {
+          curatorPasswordHash: customPassHash
+        };
+      }
+
+      const formattedJSON = JSON.stringify(exportData, null, 2);
+      
+      const blob = new Blob([formattedJSON], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "portfolio-data.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      alert("Config exported! To save permanently: \n1. Copy the contents of the downloaded 'portfolio-data.json' \n2. Open 'data.js' in your code editor \n3. Paste the contents to replace the DEFAULT_PORTFOLIO_DATA object values.");
+    }
+
+    // 10. Update Password Form Handling
+    async function handleChangePassword(e) {
+      e.preventDefault();
+      
+      const currentPass = document.getElementById('current-pass').value;
+      const newPass = document.getElementById('new-pass').value;
+      const confirmNewPass = document.getElementById('confirm-new-pass').value;
+
+      const currentValidHash = localStorage.getItem('curatorPasswordHash') || 
+                               (typeof DEFAULT_PORTFOLIO_DATA !== 'undefined' && DEFAULT_PORTFOLIO_DATA.security?.curatorPasswordHash) ||
+                               DEFAULT_PASS_HASH;
+      const currentInputHash = await sha256(currentPass);
+
+      if (currentInputHash !== currentValidHash) {
+        alert("Incorrect current password.");
+        return;
+      }
+
+      if (newPass !== confirmNewPass) {
+        alert("New password and confirmation do not match.");
+        return;
+      }
+
+      if (newPass.length < 6) {
+        alert("Password must be at least 6 characters long.");
+        return;
+      }
+
+      // Hash and store the new password
+      const newHash = await sha256(newPass);
+      localStorage.setItem('curatorPasswordHash', newHash);
+      
+      document.getElementById('current-pass').value = '';
+      document.getElementById('new-pass').value = '';
+      document.getElementById('confirm-new-pass').value = '';
+      
+      showToast("Password updated successfully!");
+    }
+
+    // 11. Toast Notifications
+    function showToast(message) {
+      const toast = document.getElementById('toast-notif');
+      document.getElementById('toast-message').innerText = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
