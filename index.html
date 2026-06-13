@@ -787,10 +787,10 @@
 
     // Disintegration Particle Reveal Engine (Triangular Puzzle Shatter & Reassemble)
     class Disintegrator {
-      constructor(container, baseImgSrc, activeImgSrc) {
+      constructor(container, baseImgEl, activeImgEl) {
         this.container = container;
-        this.baseImgSrc = baseImgSrc;
-        this.activeImgSrc = activeImgSrc;
+        this.baseImgEl = baseImgEl;
+        this.activeImgEl = activeImgEl;
         this.canvas = document.createElement('canvas');
         this.canvas.className = 'disintegrate-canvas';
         this.canvas.style.position = 'absolute';
@@ -812,38 +812,6 @@
         
         this.baseImageLoaded = false;
         this.activeImageLoaded = false;
-        
-        this.image = new Image();
-        if (baseImgSrc.startsWith('http://') || baseImgSrc.startsWith('https://')) {
-          this.image.crossOrigin = "anonymous";
-        }
-        this.image.onload = () => {
-          this.baseImageLoaded = true;
-        };
-        this.image.src = baseImgSrc;
-        if (this.image.complete && this.image.naturalWidth > 0) {
-          this.baseImageLoaded = true;
-        } else if (typeof this.image.decode === 'function') {
-          this.image.decode().then(() => {
-            this.baseImageLoaded = true;
-          }).catch(() => {});
-        }
-        
-        this.activeImage = new Image();
-        if (activeImgSrc.startsWith('http://') || activeImgSrc.startsWith('https://')) {
-          this.activeImage.crossOrigin = "anonymous";
-        }
-        this.activeImage.onload = () => {
-          this.activeImageLoaded = true;
-        };
-        this.activeImage.src = activeImgSrc;
-        if (this.activeImage.complete && this.activeImage.naturalWidth > 0) {
-          this.activeImageLoaded = true;
-        } else if (typeof this.activeImage.decode === 'function') {
-          this.activeImage.decode().then(() => {
-            this.activeImageLoaded = true;
-          }).catch(() => {});
-        }
       }
       
       trigger(mode = 'assemble') {
@@ -852,20 +820,19 @@
           this.mode = mode;
           return;
         }
-        // Force direct check in case onload did not trigger yet
-        if (this.image.complete && this.image.naturalWidth > 0) {
-          this.baseImageLoaded = true;
-        }
-        if (this.activeImage.complete && this.activeImage.naturalWidth > 0) {
-          this.activeImageLoaded = true;
-        }
+        
+        // Check if the DOM images are fully loaded
+        this.baseImageLoaded = this.baseImgEl && this.baseImgEl.complete && this.baseImgEl.naturalWidth > 0;
+        this.activeImageLoaded = this.activeImgEl && this.activeImgEl.complete && this.activeImgEl.naturalWidth > 0;
         
         if (!this.baseImageLoaded || !this.activeImageLoaded) {
-          console.warn("Disintegration trigger aborted: Images not loaded yet.", {
-            baseComplete: this.image.complete,
-            baseWidth: this.image.naturalWidth,
-            activeComplete: this.activeImage.complete,
-            activeWidth: this.activeImage.naturalWidth
+          console.warn("Disintegration trigger aborted: DOM images not loaded yet.", {
+            baseEl: !!this.baseImgEl,
+            baseComplete: this.baseImgEl ? this.baseImgEl.complete : false,
+            baseWidth: this.baseImgEl ? this.baseImgEl.naturalWidth : 0,
+            activeEl: !!this.activeImgEl,
+            activeComplete: this.activeImgEl ? this.activeImgEl.complete : false,
+            activeWidth: this.activeImgEl ? this.activeImgEl.naturalWidth : 0
           });
           return;
         }
@@ -888,7 +855,7 @@
           const x = (rect.width - w) / 2;
           const y = (rect.height - h) / 2;
           
-          const imgRatio = img.width / img.height;
+          const imgRatio = img.naturalWidth / img.naturalHeight;
           const targetRatio = w / h;
           
           let drawW, drawH, drawX, drawY;
@@ -912,13 +879,13 @@
         this.baseTempCanvas.width = rect.width;
         this.baseTempCanvas.height = rect.height;
         const baseTempCtx = this.baseTempCanvas.getContext('2d');
-        drawCoverImage(baseTempCtx, this.image);
+        drawCoverImage(baseTempCtx, this.baseImgEl);
         
         this.activeTempCanvas = document.createElement('canvas');
         this.activeTempCanvas.width = rect.width;
         this.activeTempCanvas.height = rect.height;
         const activeTempCtx = this.activeTempCanvas.getContext('2d');
-        drawCoverImage(activeTempCtx, this.activeImage);
+        drawCoverImage(activeTempCtx, this.activeImgEl);
         
         let baseImgData;
         try {
@@ -1222,44 +1189,7 @@
       }
       
       updateImageSrc(newBaseSrc, newActiveSrc) {
-        if (this.baseImgSrc !== newBaseSrc) {
-          this.baseImgSrc = newBaseSrc;
-          this.baseImageLoaded = false;
-          this.image = new Image();
-          if (newBaseSrc.startsWith('http://') || newBaseSrc.startsWith('https://')) {
-            this.image.crossOrigin = "anonymous";
-          }
-          this.image.onload = () => {
-            this.baseImageLoaded = true;
-          };
-          this.image.src = newBaseSrc;
-          if (this.image.complete && this.image.naturalWidth > 0) {
-            this.baseImageLoaded = true;
-          } else if (typeof this.image.decode === 'function') {
-            this.image.decode().then(() => {
-              this.baseImageLoaded = true;
-            }).catch(() => {});
-          }
-        }
-        if (this.activeImgSrc !== newActiveSrc) {
-          this.activeImgSrc = newActiveSrc;
-          this.activeImageLoaded = false;
-          this.activeImage = new Image();
-          if (newActiveSrc.startsWith('http://') || newActiveSrc.startsWith('https://')) {
-            this.activeImage.crossOrigin = "anonymous";
-          }
-          this.activeImage.onload = () => {
-            this.activeImageLoaded = true;
-          };
-          this.activeImage.src = newActiveSrc;
-          if (this.activeImage.complete && this.activeImage.naturalWidth > 0) {
-            this.activeImageLoaded = true;
-          } else if (typeof this.activeImage.decode === 'function') {
-            this.activeImage.decode().then(() => {
-              this.activeImageLoaded = true;
-            }).catch(() => {});
-          }
-        }
+        this.reset();
       }
     }
 
@@ -1325,7 +1255,7 @@
       const baseImg = document.getElementById('hero-base-img');
       const activeImg = document.getElementById('hero-active-img');
       if (heroCard && baseImg && activeImg) {
-        window.heroDisintegrator = new Disintegrator(heroCard, baseImg.src, activeImg.src);
+        window.heroDisintegrator = new Disintegrator(heroCard, baseImg, activeImg);
       }
 
       // Add interactivity to profile cards strictly on click toggling
